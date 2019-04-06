@@ -2,10 +2,10 @@
 # This module creates all resources necessary for a PCOIP instance in AWS
 #----------------------------------------------------------------
 
-resource "aws_security_group" "pcoipgw" {
+resource "aws_security_group" "workstation_pcoip" {
   name        = "${var.name}"
   vpc_id      = "${var.vpc_id}"
-  description = "Teradici PCOIP security group"
+  description = "Workstation - Teradici PCOIP security group"
 
   tags {
     Name = "${var.name}"
@@ -49,35 +49,35 @@ resource "aws_security_group" "pcoipgw" {
     protocol    = "tcp"
     from_port   = 443
     to_port     = 443
-    cidr_blocks = ["${var.remote_ip_cidr}"]
+    cidr_blocks = ["${var.remote_ip_cidr}", "${var.remote_subnet_cidr}"]
     description = "https"
   }
   ingress {
     protocol    = "udp"
     from_port   = 1194
     to_port     = 1194
-    cidr_blocks = ["${var.remote_ip_cidr}"]
+    cidr_blocks = ["${var.remote_ip_cidr}", "${var.remote_subnet_cidr}"]
   }
 
   ingress {
     protocol    = "udp"
     from_port   = 4172
     to_port     = 4172
-    cidr_blocks = ["${var.remote_ip_cidr}"]
+    cidr_blocks = ["${var.remote_ip_cidr}", "${var.remote_subnet_cidr}"]
   }
 
   ingress {
     protocol    = "tcp"
     from_port   = 4172
     to_port     = 4172
-    cidr_blocks = ["${var.remote_ip_cidr}"]
+    cidr_blocks = ["${var.remote_ip_cidr}", "${var.remote_subnet_cidr}"]
   }
     
   ingress {
     protocol    = "icmp"
     from_port   = 8
     to_port     = 0
-    cidr_blocks = ["${var.remote_ip_cidr}"]
+    cidr_blocks = ["${var.remote_ip_cidr}", "${var.remote_subnet_cidr}"]
     description = "icmp"
   }
   egress {
@@ -98,10 +98,10 @@ variable "openfirehawkserver" {}
 variable "remote_subnet_cidr" {} 
 
 
-resource "aws_security_group" "gateway_centos" {
+resource "aws_security_group" "workstation_centos" {
   name        = "gateway_centos"
   vpc_id      = "${var.vpc_id}"
-  description = "Gateway Teradici PCOIP security group"
+  description = "Workstation - Security group"
 
   tags {
     Name = "gateway_centos"
@@ -236,25 +236,15 @@ locals {
   skip_update = "${(var.skip_update || var.use_custom_ami)}"
 }
 
-resource "aws_eip" "pcoipgw_eip" {
-
-  vpc      = true
-  instance = "${aws_instance.pcoipgw.id}"
-
-  tags {
-    role = "workstation_centos"
-    route = "public"
-  }
-}
-resource "aws_instance" "pcoipgw" {
+resource "aws_instance" "workstation_pcoip" {
   #instance type and ami are determined by the gateway type variable for if you want a graphical or non graphical instance.
   ami           = "${var.use_custom_ami ? var.custom_ami : lookup(var.ami_map, var.gateway_type)}"
   instance_type = "${lookup(var.instance_type_map, var.gateway_type)}"
 
   key_name  = "${var.key_name}"
-  subnet_id = "${element(var.public_subnet_ids, count.index)}"
+  subnet_id = "${element(var.private_subnet_ids, count.index)}"
 
-  vpc_security_group_ids = ["${aws_security_group.pcoipgw.id}", "${aws_security_group.gateway_centos.id}"]
+  vpc_security_group_ids = ["${aws_security_group.workstation_pcoip.id}", "${aws_security_group.workstation_centos.id}"]
 
   ebs_optimized = true
   root_block_device {
@@ -264,15 +254,15 @@ resource "aws_instance" "pcoipgw" {
   }
 
   tags {
-    Name  = "gateway_centos"
-    Route = "public"
-    #Role  = "workstation_centos"
+    Name  = "workstation_centos"
+    Route = "private"
+    Role  = "workstation_centos"
   }
 
   provisioner "remote-exec" {
     connection {
       user        = "centos"
-      host        = "${self.public_ip}"
+      host        = "${self.private_ip}"
       private_key = "${var.private_key}"
       timeout     = "10m"
     }
@@ -287,28 +277,19 @@ resource "aws_instance" "pcoipgw" {
   # }
 }
 
-variable "route_zone_id" {}
 variable "public_domain_name" {}
 
-resource "aws_route53_record" "bastion_record" {
-  zone_id = "${var.route_zone_id}"
-  name    = "gateway.${var.public_domain_name}"
-  type    = "A"
-  ttl     = 300
-  records = ["${aws_eip.pcoipgw_eip.public_ip}"]
-}
-
-resource "null_resource" "pcoipgw" {
+resource "null_resource" "workstation_pcoip" {
   count = "${local.skip_update ? 0 : 1}"
 
   triggers {
-    instanceid = "${ aws_instance.pcoipgw.id }"
+    instanceid = "${ aws_instance.workstation_pcoip.id }"
   }
 
   provisioner "remote-exec" {
     connection {
       user                = "centos"
-      host                = "${aws_instance.pcoipgw.private_ip}"
+      host                = "${aws_instance.workstation_pcoip.private_ip}"
       bastion_host        = "${var.bastion_ip}"
       private_key         = "${var.private_key}"
       bastion_private_key = "${var.private_key}"
@@ -323,18 +304,18 @@ resource "null_resource" "pcoipgw" {
     command = <<EOT
       set -x
       cd /vagrant
-      ansible-playbook -i ansible/inventory/hosts ansible/ssh-add-public-host.yaml -v --extra-vars "public_ip=${aws_eip.pcoipgw_eip.public_ip} public_hostname=gateway.${var.public_domain_name} set_bastion=false"
-      # ansible-playbook -i ansible/inventory ansible/ssh-add-private-host.yaml -v --extra-vars "private_ip=${aws_instance.pcoipgw.private_ip} bastion_ip=${var.bastion_ip}"
-      ansible-playbook -i ansible/inventory ansible/node-centos-init.yaml -v --extra-vars "variable_host=pcoipgw_eip.0 hostname=gateway.${var.public_domain_name} pcoip=true"
-      ansible-playbook -i ansible/inventory ansible/node-centos-houdini.yaml -v --extra-vars "variable_host=pcoipgw_eip.0 hostname=gateway.${var.public_domain_name}"
+      #ansible-playbook -i ansible/inventory/hosts ansible/ssh-add-public-host.yaml -v --extra-vars "public_ip=${aws_instance.workstation_pcoip.public_ip} public_hostname=workstation1.${var.public_domain_name} set_bastion=false"
+      ansible-playbook -i ansible/inventory ansible/ssh-add-private-host.yaml -v --extra-vars "private_ip=${aws_instance.workstation_pcoip.private_ip} bastion_ip=${var.bastion_ip}"
+      ansible-playbook -i ansible/inventory ansible/node-centos-init.yaml -v --extra-vars "variable_host=role_workstation_centos hostname=workstation1.${var.public_domain_name} pcoip=true"
+      ansible-playbook -i ansible/inventory ansible/node-centos-houdini.yaml -v --extra-vars "variable_host=role_workstation_centos hostname=workstation1.${var.public_domain_name}"
       # to recover from yum update breaking pcoip we reinstall the nvidia driver and dracut to fix pcoip.
-      ansible-playbook -i ansible/inventory ansible/node-centos-pcoip-recover.yaml -v --extra-vars "variable_host=pcoipgw_eip.0 hostname=gateway.${var.public_domain_name}"
+      ansible-playbook -i ansible/inventory ansible/node-centos-pcoip-recover.yaml -v --extra-vars "variable_host=role_workstation_centos hostname=workstation1.${var.public_domain_name}"
   EOT
   }
 
   #after dracut, we reboot the instance locally.  annoyingly, a reboot command will cause a terraform error.
   provisioner "local-exec" {
-    command = "${var.pcoip_sleep_after_creation ? "aws ec2 stop-instances --instance-ids ${aws_instance.pcoipgw.id}" : "aws ec2 reboot-instances --instance-ids ${aws_instance.pcoipgw.id}"}"
+    command = "${var.pcoip_sleep_after_creation ? "aws ec2 stop-instances --instance-ids ${aws_instance.workstation_pcoip.id}" : "aws ec2 reboot-instances --instance-ids ${aws_instance.workstation_pcoip.id}"}"
   }
 
 
@@ -373,10 +354,10 @@ resource "null_resource" "pcoipgw" {
   # }
 }
 
-resource "null_resource" "shutdownpcoipgw" {
+resource "null_resource" "shutdown_workstation_pcoip" {
   count = "${var.sleep ? 1 : 0}"
 
   provisioner "local-exec" {
-    command = "aws ec2 stop-instances --instance-ids ${aws_instance.pcoipgw.id}"
+    command = "aws ec2 stop-instances --instance-ids ${aws_instance.workstation_pcoip.id}"
   }
 }
