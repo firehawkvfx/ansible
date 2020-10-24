@@ -4,3 +4,4 @@ set_bastion: false
 
 public_ip: None
 public_address: None
+ssh_config_remote_subnet: "10.*" # this is normally the remote subnet for your onsite hosts, but if not defined, will default to 10.*. eg: 192.168.92.*

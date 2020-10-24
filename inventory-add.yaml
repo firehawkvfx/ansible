@@ -6,6 +6,8 @@
   become: true
   
   vars:
+    variable_user: deployuser
+    variable_group: syscontrol
     hosts_dir: "{{ secrets_path }}/{{ inventory }}"
     hosts_file: "{{ hosts_dir }}/hosts"
     # hosts_file: "{{ inventory }}/hosts"
@@ -25,8 +27,8 @@
       state: directory
       recurse: yes
       mode: u=rwX,g=rwX,o-rwx
-      owner: deployuser
-      group: syscontrol
+      owner: "{{ variable_user }}"
+      group: "{{ variable_group }}"
     tags: init
     become: true
 
@@ -35,8 +37,8 @@
       path: "{{ hosts_file }}"
       state: touch
       mode: u=rw,g=rw,o=r
-      group: syscontrol
-      owner: deployuser
+      group: "{{ variable_group }}"
+      owner: "{{ variable_user }}"
     tags: init
     become: true
 
@@ -64,7 +66,7 @@
       path: "{{ hosts_file }}"
       line: "ansible_control ansible_connection=local ansible_python_interpreter=/usr/bin/python3 package_python_interpreter=/usr/bin/python3"
       backup: "{{ backup }}"
-      owner: deployuser
+      owner: "{{ variable_user }}"
       regexp: "^ansible_control ansible_connection=.*"
       insertbefore: BOF
       create: true
@@ -83,7 +85,7 @@
       path: "{{ hosts_file }}"
       line: "[{{ group_name }}]\n"
       backup: "{{ backup }}"
-      owner: deployuser
+      owner: "{{ variable_user }}"
       regexp: ".{{ group_name }}."
     when: group_name != ''
     become: yes
@@ -99,7 +101,7 @@
       path: "{{ hosts_file }}"
       line: "{{ host_name }} ansible_host={{ host_ip }} {{ insert_ssh_key_string | default('') }} ansible_python_interpreter={{ python_interpreter }} package_python_interpreter={{ package_python_interpreter }}"
       backup: "{{ backup }}"
-      owner: deployuser
+      owner: "{{ variable_user }}"
       regexp: "^{{ host_name }} ansible_host=.*"
       insertafter: "^\\[{{ group_name }}\\]"
       create: true
@@ -112,7 +114,7 @@
       path: "{{ hosts_file }}"
       line: "{{ host_name }} ansible_host={{ host_ip }} {{ insert_ssh_key_string | default('') }} ansible_python_interpreter={{ python_interpreter }} package_python_interpreter={{ package_python_interpreter }}"
       backup: "{{ backup }}"
-      owner: deployuser
+      owner: "{{ variable_user }}"
       regexp: "^{{ host_name }} ansible_host=.*"
       insertafter: "^ansible_control ansible_connection=.*"
     when: group_name == ''
