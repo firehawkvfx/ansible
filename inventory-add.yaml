@@ -8,8 +8,7 @@
   vars:
     variable_user: deployuser
     variable_group: syscontrol
-    secrets_path: "../secrets"
-    hosts_dir: "{{ secrets_path }}/{{ inventory }}"
+    hosts_dir: "{{ inventory }}"
     hosts_file: "{{ hosts_dir }}/hosts"
     # hosts_file: "{{ inventory }}/hosts"
     group_name: ''
