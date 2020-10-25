@@ -8,6 +8,7 @@
   vars:
     variable_user: deployuser
     variable_group: syscontrol
+    secrets_path: "../secrets"
     hosts_dir: "{{ secrets_path }}/{{ inventory }}"
     hosts_file: "{{ hosts_dir }}/hosts"
     # hosts_file: "{{ inventory }}/hosts"
@@ -17,7 +18,7 @@
     package_python_interpreter: /usr/bin/python3
   
   tasks:
-  - name: Hosts file path is
+  - name: Hosts file path to use is
     debug:
       var: hosts_file
 
