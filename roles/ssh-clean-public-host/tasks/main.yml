@@ -18,3 +18,4 @@
   shell: "ssh-keygen -R {{ public_address }} -f /home/{{ variable_user }}/.ssh/known_hosts"
   become: true
   become_user: "{{ variable_user }}"
+  
