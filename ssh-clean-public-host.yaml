@@ -1,0 +1,11 @@
+- hosts: "{{ variable_hosts | default('ansible_control:firehawkgateway') }}"
+  remote_user: "{{ variable_user | default('deployuser') }}"
+  become: true
+  gather_facts: "{{ variable_gather_facts | default('false') }}"
+
+  vars:
+    variable_user: deployuser
+    set_vpn: false
+
+  roles:
+  - ssh-clean-public-host
