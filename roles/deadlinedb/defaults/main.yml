@@ -1,3 +1,5 @@
 ---
 # defaults file for ansible/roles/deadline-db-restart
 out_file: 'deadline_db.log'
+deadline_linux_installers_tar: /tmp/Deadline-{{ deadline_version }}-linux-installers.tar
+reinstallation: true # reinstallation will backup a database.  It is enabled by default for caution, but can be disabled when building images.

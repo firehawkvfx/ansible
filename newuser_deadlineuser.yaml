@@ -14,6 +14,7 @@
     no_extension: "{{ deadline_linux_installers_tar | splitext | first }}"
     basename: "{{ no_extension.split('/')[-1] }}"
     houdini_major_version: 18.0
+    sudo: true
   
   pre_tasks:
   - name: test connection as deployuser
@@ -47,6 +48,7 @@
   - role: 'add-user-to-group'
     vars:
       variable_group: 'syscontrol'
+    when: sudo | bool
 
   tasks:
   - name: reset ssh connection to allow user changes to affect 'current login user'
@@ -61,6 +63,7 @@
 
   vars:
     variable_user: deadlineuser
+    sudo: true
 
   pre_tasks:
   - name: Wait 10 seconds - Test connection for new user - no sudo
@@ -79,6 +82,7 @@
     ansible_become_pass: "{{ user_deadlineuser_pw }}"
     ansible_password: "{{ user_deadlineuser_pw }}"
     variable_user: deadlineuser
+    sudo: true
 
   pre_tasks:
   - name: Wait 10 seconds - Test connection for new user - with sudo
@@ -88,3 +92,4 @@
     failed_when: result['failed']
     become_user: "{{ variable_user }}"
     become: true
+    when: sudo | bool

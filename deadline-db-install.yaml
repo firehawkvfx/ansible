@@ -11,8 +11,19 @@
     basename: "{{ no_extension.split('/')[-1] }}"
     houdini_major_version: 18.0
     ubl: true
-    
+    delegate_host: ansible_control
+
+  pre_tasks:
+  - name: what is my ip
+    command: "echo connected; ip a"
+    delegate_to: "{{ delegate_host }}"
+  # collections:
+  #   - firehawkvfx.core
+
   roles:
-    - role: firehawkvfx.core.s3_bucket_shared
+    # - role: firehawkvfx.core.s3_bucket_shared
+    #   vars:
+    #     delegate_host: "{{ delegate_host }}"
+
     - {role: deadlinedb, tags: 'deadlinedb'}
     

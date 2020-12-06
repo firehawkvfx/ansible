@@ -78,35 +78,35 @@
     name: "{{ variable_user }}"
     groups: wheel
     append: yes
-  when: ansible_distribution == 'CentOS' or ansible_distribution == 'RedHat'
+  when: ( ansible_distribution == 'CentOS' or ansible_distribution == 'RedHat' ) and ( sudo | bool )
 
 - name: 'adding existing user {{ variable_user }} to group sudo'
   user:
     name: "{{ variable_user }}"
     groups: sudo
     append: yes
-  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+  when: ( ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu' ) and ( sudo | bool )
 
-- getent:
-    database: passwd
-    key: centos
-    fail_key: False
+# - getent:
+#     database: passwd
+#     key: centos
+#     fail_key: False
 
-- name: check if centos user exists
-  debug:
-    var: getent_passwd['centos']
+# - name: check if centos user exists
+#   debug:
+#     var: getent_passwd['centos']
 
-- name: change the default centos user passwd
-  user:
-    name: centos
-    password: "{{ my_password }}"
-  when: getent_passwd['centos'] is defined
+# - name: change the default centos user passwd
+#   user:
+#     name: centos
+#     password: "{{ my_password }}"
+#   when: getent_passwd['centos'] is defined
 
-- name: change the default ubuntu user passwd
-  user:
-    name: ubuntu
-    password: "{{ my_password }}"
-  when: getent_passwd['ubuntu'] is defined
+# - name: change the default ubuntu user passwd
+#   user:
+#     name: ubuntu
+#     password: "{{ my_password }}"
+#   when: getent_passwd['ubuntu'] is defined
 
 - name: create dir
   file: 
@@ -133,6 +133,7 @@
   args:
     creates: '/home/{{ variable_user }}/.ssh/id_rsa'
   become_user: '{{ variable_user }}'
+  when: create_ssh_key | bool
 
 - name: "insert/update block in /home/{{ variable_user }}/.bashrc and home/deployuser/.bashrc"
   blockinfile:
@@ -146,8 +147,8 @@
       ec2_list_running='aws ec2 describe-instances --query 'Reservations[*].Instances[*].[InstanceId]' --filters Name=instance-state-name,Values=running --output text'
   with_items:
     - /home/{{ variable_user }}/.bashrc
-  vars:
-    ansible_python_interpreter: "{{ package_python_interpreter }}"
+  # vars:
+  #   ansible_python_interpreter: "{{ package_python_interpreter }}"
 
 - name: adding a new user requires a restart of pcoip service if present
   shell: |
