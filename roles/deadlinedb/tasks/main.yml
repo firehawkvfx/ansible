@@ -141,6 +141,7 @@
     dest: "/home/{{ user_deadlineuser_name }}/Downloads/{{ deadline_linux_basename }}"
     owner: "{{ user_deadlineuser_name }}"
     mode: u+x
+    remote_src: yes
   become_user: "{{ user_deadlineuser_name }}"
   become: true
   tags:
