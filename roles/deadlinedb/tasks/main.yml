@@ -244,7 +244,7 @@
   - install
 
 # deprecated auto installation for ubuntu 16 
-# sudo {{ files_matched.files[0].path }} --mode unattended --debuglevel 2 --prefix /opt/Thinkbox/DeadlineRepository10 --setpermissions true --installmongodb true --dbOverwrite true --mongodir /opt/Thinkbox/DeadlineDatabase10 --dbListeningPort 27100 --certgen_outdir /opt/Thinkbox/DeadlineDatabase10/certs --certgen_password {{ deadline_proxy_certificate_password }} --createX509dbuser true --requireSSL true --dbhost {{ openfirehawkserver }} --dbport 27100 --dbuser {{ user_deadlineuser_name }} --dbpassword {{ deadline_proxy_certificate_password }} --dbauth true --dbcertpass {{ deadline_proxy_certificate_password }} --dbssl true
+# sudo {{ files_matched.files[0].path }} --mode unattended --debuglevel 2 --prefix /opt/Thinkbox/DeadlineRepository10 --setpermissions true --installmongodb true --dbOverwrite true --mongodir /opt/Thinkbox/DeadlineDatabase10 --dbListeningPort 27017 --certgen_outdir /opt/Thinkbox/DeadlineDatabase10/certs --certgen_password {{ deadline_proxy_certificate_password }} --createX509dbuser true --requireSSL true --dbhost {{ openfirehawkserver }} --dbport 27017 --dbuser {{ user_deadlineuser_name }} --dbpassword {{ deadline_proxy_certificate_password }} --dbauth true --dbcertpass {{ deadline_proxy_certificate_password }} --dbssl true
 - name: Install Deadline DB & pull latest log.
   block:
     - name: 'Install deadline db as {{ user_deadlineuser_name }}'
@@ -252,7 +252,7 @@
         # set -x
         cd /home/{{ user_deadlineuser_name }}/Downloads/
 
-        sudo {{ files_matched.files[0].path }} --mode unattended --debuglevel 2 --prefix /opt/Thinkbox/DeadlineRepository10 --setpermissions true --installmongodb false --dbListeningPort 27100 --createX509dbuser true --requireSSL true --dbhost {{ openfirehawkserver }} --dbport 27100 --dbuser {{ user_deadlineuser_name }} --dbauth true --dbssl true
+        sudo {{ files_matched.files[0].path }} --mode unattended --debuglevel 2 --prefix /opt/Thinkbox/DeadlineRepository10 --setpermissions true --installmongodb false --dbListeningPort 27017 --createX509dbuser true --requireSSL true --dbhost {{ openfirehawkserver }} --dbport 27017 --dbuser {{ user_deadlineuser_name }} --dbauth true --dbssl true
       become_user: "{{ user_deadlineuser_name }}"
       register: deadline_db_install_output_shell
       become: true
