@@ -131,10 +131,10 @@ user_deployuser_pw: "{{ lookup('env','TF_VAR_user_deployuser_pw') }}"
 
 workstation_address: "{{ lookup('env', 'TF_VAR_workstation_address') }}"
 
-openfirehawkserver: "{{ lookup('env','TF_VAR_openfirehawkserver') }}"
-openfirehawkserver_dev: "{{ lookup('env','TF_VAR_openfirehawkserver_dev') }}"
-openfirehawkserver_prod: "{{ lookup('env','TF_VAR_openfirehawkserver_prod') }}"
-openfirehawkserver_name: "{{ lookup('env', 'TF_VAR_openfirehawkserver') }}"
+# openfirehawkserver: "{{ lookup('env','TF_VAR_openfirehawkserver') }}"
+# openfirehawkserver_dev: "{{ lookup('env','TF_VAR_openfirehawkserver_dev') }}"
+# openfirehawkserver_prod: "{{ lookup('env','TF_VAR_openfirehawkserver_prod') }}"
+# openfirehawkserver_name: "{{ lookup('env', 'TF_VAR_openfirehawkserver') }}"
 
 gateway_hostname: "{{ lookup('env', 'TF_VAR_gateway_hostname') }}"
 control_hostname: "{{ lookup('env', 'TF_VAR_control_hostname') }}"
