@@ -1,8 +1,8 @@
 - name: init ubl licence info if first time install
   shell: | 
     cd /opt/Thinkbox/DeadlineDatabase10/mongo/application/bin/
-    ./{{ mongo_executable }} --sslPEMKeyPassword "{{ deadline_proxy_certificate_password }}" --eval 'db.DeadlineSettings.insert({"_id": "deadline_network_settings"},{$set:{UsageBasedURL: "{{ usage_based_url }}"}})'
-    ./{{ mongo_executable }} --sslPEMKeyPassword "{{ deadline_proxy_certificate_password }}" --eval 'db.DeadlineSettings.insert({"_id": "deadline_network_settings"},{$set:{UsageBasedActivationCode: "{{ usage_based_activation_code }}"}})'
+    ./{{ mongo_executable }} --sslPEMKeyPassword "avaultpassword" --eval 'db.DeadlineSettings.insert({"_id": "deadline_network_settings"},{$set:{UsageBasedURL: "{{ usage_based_url }}"}})'
+    ./{{ mongo_executable }} --sslPEMKeyPassword "avaultpassword" --eval 'db.DeadlineSettings.insert({"_id": "deadline_network_settings"},{$set:{UsageBasedActivationCode: "{{ usage_based_activation_code }}"}})'
   when: ubl
   no_log: true
   become: true
@@ -15,8 +15,8 @@
 - name: update ubl licence info if already installed
   shell: |
     cd /opt/Thinkbox/DeadlineDatabase10/mongo/application/bin/
-    ./{{ mongo_executable }} --sslPEMKeyPassword "{{ deadline_proxy_certificate_password }}" --eval 'db.DeadlineSettings.update({"_id": "deadline_network_settings"},{$set:{UsageBasedURL: "{{ usage_based_url }}"}})'
-    ./{{ mongo_executable }} --sslPEMKeyPassword "{{ deadline_proxy_certificate_password }}" --eval 'db.DeadlineSettings.update({"_id": "deadline_network_settings"},{$set:{UsageBasedActivationCode: "{{ usage_based_activation_code }}"}})'
+    ./{{ mongo_executable }} --sslPEMKeyPassword "avaultpassword" --eval 'db.DeadlineSettings.update({"_id": "deadline_network_settings"},{$set:{UsageBasedURL: "{{ usage_based_url }}"}})'
+    ./{{ mongo_executable }} --sslPEMKeyPassword "avaultpassword" --eval 'db.DeadlineSettings.update({"_id": "deadline_network_settings"},{$set:{UsageBasedActivationCode: "{{ usage_based_activation_code }}"}})'
   when: ubl
   no_log: true
   become: true

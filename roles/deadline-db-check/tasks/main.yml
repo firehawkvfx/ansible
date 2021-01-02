@@ -30,7 +30,7 @@
     - name: check db
       shell: |
         cd /opt/Thinkbox/DeadlineDatabase10/mongo/application/bin/
-        ./{{ mongo_executable }} --sslPEMKeyPassword "{{ deadline_proxy_certificate_password }}" --eval 'printjson(db.getCollectionNames())'
+        ./{{ mongo_executable }} --sslPEMKeyPassword "avaultpassword" --eval 'printjson(db.getCollectionNames())'
       no_log: true
       become: true
       retries: 5

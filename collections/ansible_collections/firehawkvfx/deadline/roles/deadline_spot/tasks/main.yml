@@ -82,9 +82,9 @@
 #   shell: | 
 #     # set -x
 #     cd /opt/Thinkbox/DeadlineDatabase10/mongo/application/bin/
-#     ./{{ mongo_executable }} --sslPEMKeyPassword "{{ deadline_proxy_certificate_password }}" --eval 'db.EventPluginSettingsCollection.{{ item }}({"_id": "spot"},{$set:{"PluginEnabled": "1"}})'
+#     ./{{ mongo_executable }} --sslPEMKeyPassword "avaultpassword" --eval 'db.EventPluginSettingsCollection.{{ item }}({"_id": "spot"},{$set:{"PluginEnabled": "1"}})'
 
-#     ./{{ mongo_executable }} --sslPEMKeyPassword "{{ deadline_proxy_certificate_password }}" --eval '
+#     ./{{ mongo_executable }} --sslPEMKeyPassword "avaultpassword" --eval '
 #       var StaggerInstances = "5";
 #       var IdleShutdown = "10";
 #       var spot_json = cat("/secrets/spot-fleet-templates/config_generated.json");
@@ -107,7 +107,7 @@
   shell: | 
     # set -x
     cd /opt/Thinkbox/DeadlineDatabase10/mongo/application/bin/
-    ./{{ mongo_executable }} --sslPEMKeyPassword "{{ deadline_proxy_certificate_password }}" --eval '
+    ./{{ mongo_executable }} --sslPEMKeyPassword "avaultpassword" --eval '
       var StaggerInstances = "50";
       var IdleShutdown = "2";
       var spot_json = cat("/secrets/spot-fleet-templates/config_generated.json");
