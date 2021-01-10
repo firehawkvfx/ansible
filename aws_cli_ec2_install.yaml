@@ -19,8 +19,8 @@
       msg: 'test msg'
 
   roles:
-    - role: pip
-    - role: aws_cli_ec2_install
+    - role: firehawkvfx.core.pip
+    - role: firehawkvfx.core.aws_cli_ec2_install
     - role: firehawkvfx.fsx.fsx_packages # this will trigger a reboot
 
 # example:

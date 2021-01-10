@@ -37,7 +37,7 @@
     ansible_become_pass: "{{ user_deadlineuser_pw }}"
 
   roles:
-    - role: pip
+    - role: firehawkvfx.core.pip
 
   post_tasks:
   - name: create Thinkbox dir

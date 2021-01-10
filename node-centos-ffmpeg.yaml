@@ -32,7 +32,7 @@
     bucket: "{{ installers_bucket }}"
 
   roles:
-  - role: pip
+  - role: firehawkvfx.core.pip
 
   post_tasks:
   - name: Remote RPM install with yum
