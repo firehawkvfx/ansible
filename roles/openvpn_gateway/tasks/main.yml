@@ -139,7 +139,7 @@
     path: /etc/resolvconf/resolv.conf.d/head
     block: |
       nameserver {{ private_ip }}
-      search ap-southeast-2.compute.internal
+      search {{ aws_domain }}
       search {{ private_domain_name }}
     marker: "# {mark} ANSIBLE MANAGED BLOCK"
 # nameserver 8.8.8.8 
